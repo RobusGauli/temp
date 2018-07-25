@@ -37,7 +37,7 @@ function calculatePriebeBaezImprovement(liq) {
   cptLayers.forEach(cptLayer => {
     const {
       depth,
-      effectiveVerticalStress,
+      designEffectiveVerticalStress,
       totalVerticalStress,
       n60,
       coneResistance,
@@ -76,7 +76,7 @@ function calculatePriebeBaezImprovement(liq) {
     const result = calculatePriebeBaez(
       {
         depth,
-        effectiveVerticalStress,
+        designEffectiveVerticalStress,
         totalVerticalStress,
         n60,
         n160,

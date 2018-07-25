@@ -10,10 +10,29 @@ function createCpt(cptInputObject) {
   };
 }
 
+const lookupSchema = jt.object({
+  soilClassification: jt.object({
+    data: jt.object(jt.any()).minLength(1)
+  })
+})
+
 class CptLiquefaction {
   
-  constructor(projectInputs) {
+  constructor(projectInputs, lookup) {
+    // validate the projectInputs and lookup
+    
+    const { error } = lookupSchema.validate(lookup);
+    if (error) {
+      throw error;
+    }
+
+    const {error: err} = jt.object({}).minLength(1).validate(projectInputs);
+    if (err) {
+      throw err;
+    }
+
     this.projectInputs = projectInputs;
+    this.lookup = lookup;
     this.cptLayers = [];
     this.firstCptInstance = null;
     this.lastCptInstance = null;
@@ -64,13 +83,15 @@ class CptLiquefaction {
 
 CptLiquefaction.validCptInputSchema = jt.list(
   jt.object({
+    n60: jt.number(),
     depth: jt.number(),
+    soilZone: jt.number(),
     coneResistance: jt.number(),
     sleeveFriction: jt.number(),
-    n60: jt.number(),
     totalVerticalStress: jt.number(),
     effectiveVerticalStress: jt.number(),
-    soilZone: jt.number()
+    designTotalVerticalStress: jt.number(),
+    designEffectiveVerticalStress: jt.number()
   })
 );
 

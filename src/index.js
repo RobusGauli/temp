@@ -3,6 +3,9 @@ const CptLiquefaction = require("./CptLiquefaction");
 const { calculateUnimprovedCSR } = require('./unImprovedCSR');
 const  calculatePriebeBaezImprovement = require('./priebeBaez');
 
+const soilClassification = require('./soilClassification');
+
+
 
 function main() {
   const projectInputs = {
@@ -11,48 +14,57 @@ function main() {
     pga: 0.55,
     depthToGroundWater: 5,
     frictionAngleOfClay: 10,
-    stoneColumnLength: 35,
-    stoneColumnSpacing: 8.2,
-    stoneFrictionAngle: 43,
-    stoneDensity: 125,        
-    areaReplacementRatioForSand: 0.105,
-    areaReplacementRatioForSiltySand: 0.105,
-    finesCutOffForSiltyOrSandySoils: 10, // in percent,
+    stoneColumnLength: 25,
+    stoneColumnSpacing: 8,
+    stoneFrictionAngle: 45,
+    stoneDensity: 105,        
+    areaReplacementRatioForSand: 0.11,
+    areaReplacementRatioForSiltySand: 0.11,
+    finesCutOffForSiltyOrSandySoils: 15, // in percent,
     US: 0.35,
     columnEc: 900,
-    methodForGroundDensification: 'WEIGHTED_AVERAGE'
+    methodForGroundDensification: 'NONE'
   };
   const cptInputs = [
     {
-      depth: 0.16404,
-      coneResistance: 7.42,
-      sleeveFriction: 0.12009182,
-      n60: 1.34,
-      totalVerticalStress: 955.163,
-      effectiveVerticalStress: 955.163,
-      soilZone: 9,
+      depth: 0.16,
+      coneResistance: 494.88,
+      sleeveFriction: 0.3862,
+      n60: 57.37,
+      designTotalVerticalStress: 21.30,
+      designEffectiveVerticalStress: 21.30,
+      totalVerticalStress: 21.30,
+      effectiveVerticalStress: 21.30,
+      soilZone: 11,
     },
     {
-      depth: 0.32808,
-      coneResistance: 33.5643,
-      sleeveFriction: 0.1723,
-      n60: 5.04,
-      totalVerticalStress: 972.006,
-      effectiveVerticalStress: 972.006,
+      depth: 0.33,
+      coneResistance: 155.68,
+      sleeveFriction: 0.4625,
+      n60: 21.19,
+      totalVerticalStress: 42.59,
+      effectiveVerticalStress: 42.59,
+      designEffectiveVerticalStress: 42.59,
+      designTotalVerticalStress: 42.59,
       soilZone: 11
     },
     {
-      depth: 0.49212,
-      coneResistance: 36.233,
-      sleeveFriction: 0.206,
-      n60: 5.58711,
-      totalVerticalStress: 988.97,
-      effectiveVerticalStress: 988.97,
+      depth: 0.49,
+      coneResistance: 86.99,
+      sleeveFriction: 0.3976,
+      n60: 13.04,
+      totalVerticalStress: 60.81,
+      designEffectiveVerticalStress: 60.81,
+      designTotalVerticalStress: 60.81,
+      effectiveVerticalStress: 60.81,
       soilZone: 11
     }
   ];
-
-  const liq = new CptLiquefaction(projectInputs);
+  
+  const lookup = {
+    soilClassification,
+  }
+  const liq = new CptLiquefaction(projectInputs, lookup);
   liq.addCptLayers(cptInputs);
   liq.pipe(calculateUnimprovedCSR).pipe(calculatePriebeBaezImprovement);
   console.log(liq);

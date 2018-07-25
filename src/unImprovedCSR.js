@@ -13,8 +13,8 @@ function calculateUnimprovedCSR(liq) {
       coneResistance,
       sleeveFriction,
       n60,
-      totalVerticalStress,
-      effectiveVerticalStress
+      designTotalVerticalStress,
+      designEffectiveVerticalStress,
     } = cptLayer.cptInput;
 
     const { error } = jt
@@ -35,8 +35,8 @@ function calculateUnimprovedCSR(liq) {
         coneResistance,
         sleeveFriction,
         upperLayerDepth,
-        totalVerticalStress,
-        effectiveVerticalStress
+        designEffectiveVerticalStress,
+        designTotalVerticalStress
       },
       projectInputs
     );
@@ -51,7 +51,6 @@ function calculateUnimprovedCSR(liq) {
 }
 
 function calculateIc(q, fr) {
-  console.log(q, fr);
   return ((3.47 - Math.log10(q)) ** 2 + (1.22 + Math.log10(fr)) ** 2) ** 0.5;
 }
 
@@ -60,10 +59,8 @@ function calculateQ(qc, total, effective, n) {
 }
 
 function calculateDeltaQC1n(qc1n, finesContent) {
-  return (
-    (11.9 + qc1n / 14.6) *
-    Math.exp(1.63 - 9.7 / (finesContent + 2) - (15.7 / (finesContent + 2)) ** 2)
-  );
+  
+  return 11.9+(qc1n/14.6)*Math.exp(1.63-(9.7/(finesContent+2))-((15.7/(finesContent+2))**2))
 }
 
 function calculateCSR(cptInput, projectInput) {
@@ -73,8 +70,8 @@ function calculateCSR(cptInput, projectInput) {
     coneResistance,
     sleeveFriction,
     n60,
-    totalVerticalStress,
-    effectiveVerticalStress
+    designTotalVerticalStress,
+    designEffectiveVerticalStress
   } = cptInput;
 
   coneResistance *= 2000;
@@ -89,12 +86,12 @@ function calculateCSR(cptInput, projectInput) {
 
   const firstPassQ = calculateQ(
     coneResistance,
-    totalVerticalStress,
-    effectiveVerticalStress,
+    designTotalVerticalStress,
+    designEffectiveVerticalStress,
     1
   );
   const frictionRatio =
-    (sleeveFriction / (coneResistance - totalVerticalStress)) * 100;
+    (sleeveFriction / (coneResistance - designTotalVerticalStress)) * 100;
 
   const firstPassIc = calculateIc(firstPassQ, frictionRatio);
 
@@ -102,8 +99,8 @@ function calculateCSR(cptInput, projectInput) {
 
   const secondPassQ = calculateQ(
     coneResistance,
-    totalVerticalStress,
-    effectiveVerticalStress,
+    designTotalVerticalStress,
+    designEffectiveVerticalStress,
     0.5
   );
   const secondPassIc = calculateIc(secondPassQ, frictionRatio);
@@ -120,13 +117,13 @@ function calculateCSR(cptInput, projectInput) {
 
   const Q = calculateQ(
     coneResistance,
-    totalVerticalStress,
-    effectiveVerticalStress,
+    designTotalVerticalStress,
+    designEffectiveVerticalStress,
     n
   );
   const ic = calculateIc(Q, frictionRatio);
 
-  const cn = Math.min(1.7, (2116.217 / effectiveVerticalStress) ** 0.5);
+  const cn = Math.min(1.7, (2116.217 / designEffectiveVerticalStress) ** 0.5);
 
   // based on m = 0.5
   const qc1n = cn * (coneResistance / 2116.217);
@@ -139,12 +136,13 @@ function calculateCSR(cptInput, projectInput) {
   const mAfterIteration = 1.338 - 0.249 * qc1ncs ** 0.264;
   const CNBasedOnNewM = Math.min(
     1.7,
-    (2116.217 / effectiveVerticalStress) ** mAfterIteration
+    (2116.217 / designEffectiveVerticalStress) ** mAfterIteration
   );
 
   const qc1nBasedOnNewM = CNBasedOnNewM * (coneResistance / 2116.217);
   const finalDeltaQc1n = calculateDeltaQC1n(qc1nBasedOnNewM, finesContent);
   const finalQc1ncs = qc1nBasedOnNewM + finalDeltaQc1n;
+  console.log(qc1nBasedOnNewM, finalDeltaQc1n, finalQc1ncs);
 
   const crr = (() => {
     if (finalQc1ncs < 21) {
@@ -168,11 +166,11 @@ function calculateCSR(cptInput, projectInput) {
   const beta = 0.106 + 0.118 * Math.sin((depth * 0.3048) / 11.28 + 5.142);
 
   const rd = Math.exp(alpha + beta * earthquakeMagnitude);
-  const csr = 0.65 * pga * (totalVerticalStress / effectiveVerticalStress) * rd;
+  const csr = 0.65 * pga * (designTotalVerticalStress / designEffectiveVerticalStress) * rd;
   const cs = Math.min(0.3, 1 / (37.3 - 8.27 * finalQc1ncs ** 0.264));
   const ks = Math.min(
     1.1,
-    1 - cs * Math.log(effectiveVerticalStress / 2116.217)
+    1 - cs * Math.log(designEffectiveVerticalStress / 2116.217)
   );
   const msfMax = Math.min(2.2, 1.09 + (finalQc1ncs / 180) ** 3);
   const msf =
@@ -189,7 +187,7 @@ function calculateCSR(cptInput, projectInput) {
 
   const thicknessOfLiqLayer = factorOfSafety > 1 ? 0 : depth - upperLayerDepth;
 
-  const n160 = n60 * cn;
+  const n160 = n60 * CNBasedOnNewM;
   const deltan160 = Math.exp(
     1.63 + 9.7 / (finesContent + 0.01) - (15.7 / (finesContent + 0.01)) ** 2
   );
@@ -215,6 +213,16 @@ function calculateCSR(cptInput, projectInput) {
     thicknessOfLiqLayer,
     n160,
     n160cs,
+    qc1n,
+    qc1nBasedOnNewM,
+    qc1nBasedOnNewM,
+    mAfterIteration,
+    crr,
+
+    deltan160,
+    finalDeltaQc1n,
+    finalQc1ncs
+
 
   };
 }
