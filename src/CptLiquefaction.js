@@ -12,7 +12,7 @@ function createCpt(cptInputObject) {
 
 const lookupSchema = jt.object({
   soilClassification: jt.object({
-    data: jt.object(jt.any()).minLength(1)
+    data: jt.object({}).minLength(1)
   })
 })
 

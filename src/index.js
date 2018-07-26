@@ -2,6 +2,9 @@ const CptLiquefaction = require("./CptLiquefaction");
 
 const { calculateUnimprovedCSR } = require('./unImprovedCSR');
 const  calculatePriebeBaezImprovement = require('./priebeBaez');
+const  calculateStressAfterPriebeBaez = require('./stressAfterPriebeBaez');
+const calculateImprovedCSR = require('./improvedCSR');
+
 
 const soilClassification = require('./soilClassification');
 
@@ -23,7 +26,12 @@ function main() {
     finesCutOffForSiltyOrSandySoils: 15, // in percent,
     US: 0.35,
     columnEc: 900,
-    methodForGroundDensification: 'NONE'
+    methodForGroundDensification: 'NONE',
+    earthEmbankmentSurcharge: 0,
+    densityType: 1, // 1 for moist and 0 for dry
+    nfForMaxDensity: 50,
+    nfForMinDensity: 0,
+    assumedWaterDepth: 5
   };
   const cptInputs = [
     {
@@ -36,6 +44,7 @@ function main() {
       totalVerticalStress: 21.30,
       effectiveVerticalStress: 21.30,
       soilZone: 11,
+      ic: 0.188299,
     },
     {
       depth: 0.33,
@@ -46,7 +55,8 @@ function main() {
       effectiveVerticalStress: 42.59,
       designEffectiveVerticalStress: 42.59,
       designTotalVerticalStress: 42.59,
-      soilZone: 11
+      soilZone: 11,
+      ic: 0.842055
     },
     {
       depth: 0.49,
@@ -57,7 +67,8 @@ function main() {
       designEffectiveVerticalStress: 60.81,
       designTotalVerticalStress: 60.81,
       effectiveVerticalStress: 60.81,
-      soilZone: 11
+      soilZone: 11,
+      ic: 1.19012
     }
   ];
   
@@ -66,8 +77,8 @@ function main() {
   }
   const liq = new CptLiquefaction(projectInputs, lookup);
   liq.addCptLayers(cptInputs);
-  liq.pipe(calculateUnimprovedCSR).pipe(calculatePriebeBaezImprovement);
-  console.log(liq);
+  liq.pipe(calculateUnimprovedCSR).pipe(calculatePriebeBaezImprovement).pipe(calculateStressAfterPriebeBaez).pipe(calculateImprovedCSR)
+  console.log(liq)
 }
 
 main();
