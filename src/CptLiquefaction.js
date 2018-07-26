@@ -14,19 +14,21 @@ const lookupSchema = jt.object({
   soilClassification: jt.object({
     data: jt.object({}).minLength(1)
   })
-})
+});
 
 class CptLiquefaction {
-  
   constructor(projectInputs, lookup) {
     // validate the projectInputs and lookup
-    
+
     const { error } = lookupSchema.validate(lookup);
     if (error) {
       throw error;
     }
 
-    const {error: err} = jt.object({}).minLength(1).validate(projectInputs);
+    const { error: err } = jt
+      .object({})
+      .minLength(1)
+      .validate(projectInputs);
     if (err) {
       throw err;
     }
@@ -59,6 +61,7 @@ class CptLiquefaction {
   pipe(func) {
     return func(this);
   }
+
   addCpt(cptInputObject) {
     // create and object
     const cptInstance = createCpt(cptInputObject);
@@ -66,9 +69,8 @@ class CptLiquefaction {
     if (this.currentCptInstance !== null) {
       cptInstance.upperCptInstance = this.currentCptInstance;
       this.currentCptInstance.lowerCptInstance = cptInstance;
-
     }
-    
+
     if (this.firstCptInstance === null) {
       // this is the first one in the add
       this.firstCptInstance = cptInstance;

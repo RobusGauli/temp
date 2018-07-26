@@ -85,6 +85,5 @@ function calculateImprovedCSR(liq) {
   return liq;
 }
 
-module.exports = {
-  calculateImprovedCSR,
-};
+module.exports =  calculateImprovedCSR
+
