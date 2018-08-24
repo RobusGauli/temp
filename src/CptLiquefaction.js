@@ -41,6 +41,8 @@ class CptLiquefaction {
     this.currentCptInstance = null;
   }
 
+
+  
   addCptLayers(cptInputObjects) {
     if (!Array.isArray(cptInputObjects)) {
       throw new TypeError("Argument must be of type array.");

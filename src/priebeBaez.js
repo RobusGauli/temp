@@ -1,4 +1,5 @@
 const jt = require("./js-types");
+const { radian } = require('./math');
 
 function calculatePriebeBaezImprovement(liq) {
   let { cptLayers, projectInputs } = liq;
@@ -11,7 +12,8 @@ function calculatePriebeBaezImprovement(liq) {
   const {
     areaReplacementRatioForSand,
     areaReplacementRatioForSiltySand,
-    stoneColumnSpacing
+    stoneColumnSpacing,
+
   } = projectInputs;
   const stoneColumnDiameterForSand =
     2 *
@@ -40,6 +42,7 @@ function calculatePriebeBaezImprovement(liq) {
       designEffectiveVerticalStress,
       totalVerticalStress,
       n60,
+      soilZone,
       coneResistance,
       sleeveFriction
     } = cptLayer.cptInput;
@@ -86,7 +89,8 @@ function calculatePriebeBaezImprovement(liq) {
         cn,
         ic,
         qc1ncs,
-        deltaQc1ncs
+        deltaQc1ncs,
+        soilZone
       },
       projectInputs
     );
@@ -111,6 +115,7 @@ function calculateSoilFrictionAngle(n160, frictionAngleOfClay, soilZone) {
 }
 
 function calculateEs(n60, soilZone) {
+  
   if (soilZone === 11) {
     return 600 * (n60 + 6);
   }
@@ -130,9 +135,7 @@ function calculatePercentFines(ic) {
   return -8.159 * ic ** 3 + 70.846 * ic ** 2 - 128.21 * ic + 67.474;
 }
 
-function radian(angle) {
-  return angle * (Math.PI / 180);
-}
+
 
 function performPriebeImprovement(cptInput, projectInputs) {
   const {
@@ -347,7 +350,9 @@ function calculatePriebeBaez(cptInput, projectInputs) {
 
   return {
     improvedConeResistance,
-    improvedSleeveFriction
+    improvedSleeveFriction,
+    Ar,
+    Es
   };
 }
 

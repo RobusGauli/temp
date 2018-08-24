@@ -4,6 +4,9 @@ const { calculateUnimprovedCSR } = require('./unImprovedCSR');
 const  calculatePriebeBaezImprovement = require('./priebeBaez');
 const  calculateStressAfterPriebeBaez = require('./stressAfterPriebeBaez');
 const calculateImprovedCSR = require('./improvedCSR');
+const performBoulanger = require('./boulanger');
+const performVolStrainCalculation = require('./volStrain');
+const performSeismicSettlement = require('./seismicSettlement');
 
 
 const soilClassification = require('./soilClassification');
@@ -31,7 +34,19 @@ function main() {
     densityType: 1, // 1 for moist and 0 for dry
     nfForMaxDensity: 50,
     nfForMinDensity: 0,
-    assumedWaterDepth: 5
+    assumedWaterDepth: 5,
+    elevationOfTopOfSoilProfile: 100,
+    soilPoissonRatio: 0.4,
+    stoneColumnPoissonRatio: 0.3,
+    Gc: 300,
+    Ec: 750,
+    soilReinforcementMethod: 'COMBINED',
+    depthToZcr: 60,
+    depthToDfi: 50,
+    depthToSoilMix: 0,
+    seismicSettlementMethod: 'TOKIMATSU_AND_SEED',
+    factorOfSafetyForMinSettlement: 1,
+    factorOfSafetyForMaxSettlement: 1.5
   };
   const cptInputs = [
     {
@@ -77,7 +92,8 @@ function main() {
   }
   const liq = new CptLiquefaction(projectInputs, lookup);
   liq.addCptLayers(cptInputs);
-  liq.pipe(calculateUnimprovedCSR).pipe(calculatePriebeBaezImprovement).pipe(calculateStressAfterPriebeBaez).pipe(calculateImprovedCSR)
+  liq.pipe(calculateUnimprovedCSR).pipe(calculatePriebeBaezImprovement).pipe(calculateStressAfterPriebeBaez).pipe(calculateImprovedCSR).pipe(performBoulanger).pipe(performVolStrainCalculation).pipe(performSeismicSettlement);
+
   console.log(liq)
 }
 

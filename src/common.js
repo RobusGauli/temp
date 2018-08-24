@@ -90,7 +90,6 @@ function calculateCSR(cptInput, projectInput) {
   const qc1nBasedOnNewM = CNBasedOnNewM * (coneResistance / 2116.217);
   const finalDeltaQc1n = calculateDeltaQC1n(qc1nBasedOnNewM, finesContent);
   const finalQc1ncs = qc1nBasedOnNewM + finalDeltaQc1n;
-  console.log(qc1nBasedOnNewM, finalDeltaQc1n, finalQc1ncs);
 
   const crr = (() => {
     if (finalQc1ncs < 21) {
@@ -166,12 +165,10 @@ function calculateCSR(cptInput, projectInput) {
     qc1nBasedOnNewM,
     mAfterIteration,
     crr,
-
+    firstPassLiquefiable,
     deltan160,
     finalDeltaQc1n,
     finalQc1ncs
-
-
   };
 }
 
